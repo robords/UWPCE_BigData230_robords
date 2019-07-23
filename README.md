@@ -1,6 +1,7 @@
 # UWPCE_BigData230_robords
 
-The project write up is due July 24th at 9pm as a new project in Github and will include your choice of data source, your choice of tools and what questions you intend to answer with your analysis. 
+__Description__ 
+ My intent is to build out an interactive dashboard that, given a set of food inputs, returns a list of compounds they have in common.  
 
 __Data Source:__ http://foodb.ca/foods
   * They are one-time download files: CSV and JSON available (along with SQL and XML)
