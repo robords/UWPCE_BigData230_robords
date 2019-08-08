@@ -15,7 +15,7 @@ RUN yum install libcurl-devel -y
 WORKDIR /home/root
 RUN yum install -y R
 
-RUN R -e "install.packages(c('shiny', 'rmarkdown', 'devtools', 'dplyr', 'plotly', 'DT', 'neo4r'), repos='http://cran.r-project.org', INSTALL_opts='--no-html')"
+RUN R -e "install.packages(c('shiny', 'rmarkdown', 'devtools', 'dplyr', 'plotly', 'DT', 'neo4r', 'sparklyr'), repos='http://cran.r-project.org', INSTALL_opts='--no-html')"
 
 #-----------------------
 
