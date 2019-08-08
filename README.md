@@ -35,3 +35,6 @@ __Tools:__
   http://rs.io/100-interesting-data-sets-for-statistics/
   
   
+__Useful:__
+ * Start the docker daemon: https://docs.docker.com/config/daemon/systemd/
+ * Run docker as non-root and set it to start on reboot: https://docs.docker.com/install/linux/linux-postinstall//
