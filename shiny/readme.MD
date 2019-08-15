@@ -9,5 +9,6 @@ con <- neo4j_api$new(
 con$get_version()
 
 library(magrittr)
-
+'MATCH (tom {name: "Tom Hanks"}) RETURN tom;' %>%
+  call_neo4j(con)
 ```
