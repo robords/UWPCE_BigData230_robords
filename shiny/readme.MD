@@ -7,4 +7,7 @@ con <- neo4j_api$new(
      password = "test"
 )
 con$get_version()
+
+library(magrittr)
+
 ```
