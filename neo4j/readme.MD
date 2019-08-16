@@ -5,6 +5,10 @@ docker network ls
 ```
 
 ```
+http://www.nagraj.net/notes/how-to-create-small-random-sample-from-large-csv-file/
+```
+
+```
 LOAD CSV WITH HEADERS FROM "file:///foods.csv" AS row
 CREATE (n:Foods)
 SET n = row
