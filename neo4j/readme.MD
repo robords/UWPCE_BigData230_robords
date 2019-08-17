@@ -1,11 +1,12 @@
+Docker
 ```
 docker run --network=shiny_default --name testneo4j -p7474:7474 -p7687:7687 -d -v $HOME/neo4j/data:/data -v $HOME/neo4j/logs:/logs -v $HOME/neo4j/import:/var/lib/neo4j/import -v $HOME/neo4j/plugins:/plugins --env NEO4J_AUTH=none --env=NEO4J_dbms_memory_heap_max__size=4G neo4j:latest
 docker inspect network shiny_default
 docker network ls
 ```
 
+NEO4J Commands
 ```
-docker run --network=shiny_default --name testneo4j -p7474:7474 -p7687:7687 -d -v $HOME/neo4j/data:/data -v $HOME/neo4j/logs:/logs -v $HOME/neo4j/import:/var/lib/neo4j/import -v $HOME/neo4j/plugins:/plugins --env NEO4J_AUTH=none --env=NEO4J_dbms_memory_heap_max__size=4G neo4j:latest
 
 
 LOAD CSV WITH HEADERS FROM "file:///nutrients.csv" AS row
