@@ -19,22 +19,23 @@ con <- neo4j_api$new(
 )
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
    
   output$con_text <- renderText({
     print(paste(con$ping()))
     })
-  output$query_test <- renderPrint({
-    a <- 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;' %>%
-      call_neo4j(con)
-    print(a)
+  
+  query_names <- 'MATCH (n:Food) RETURN DISTINCT n.name LIMIT 50' %>%
+    call_neo4j(con)
+  output$query_test <- renderText({
+    print(paste(unlist(query_names)))
   })
-  query = 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;'
+  updateSelectizeInput(session, 'choose_names', choices = paste(unlist(query_names)), server = TRUE)
+  
+  query_table = 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;'
   output$Foods <- DT::renderDataTable({
-    query
-    a <-query %>%
+    a <-query_table %>%
       call_neo4j(con)
-    
     as.data.frame(a)
   })
   
