@@ -10,3 +10,5 @@ mv contents_nutrients.csv ../
 mv nutrients.csv ../
 
 ```
+
+Possibly interesting dataset to explore alongside this one: https://data.nal.usda.gov/dataset/composition-foods-raw-processed-prepared-usda-national-nutrient-database-standard-reference-release-27
