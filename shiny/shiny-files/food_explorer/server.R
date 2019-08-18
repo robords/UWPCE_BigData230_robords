@@ -10,6 +10,8 @@
 library(shiny)
 library(neo4r)
 library(magrittr)
+library(DT)
+
 con <- neo4j_api$new(
   url = "http://172.28.1.3:7474/",
   user = "neo4j",
@@ -25,19 +27,15 @@ shinyServer(function(input, output) {
   output$query_test <- renderPrint({
     a <- 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;' %>%
       call_neo4j(con)
-    
     print(a)
   })
-  
-  output$distPlot <- renderPlot({
+  query = 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;'
+  output$Foods <- DT::renderDataTable({
+    query
+    a <-query %>%
+      call_neo4j(con)
     
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2] 
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    
+    as.data.frame(a)
   })
   
 })
