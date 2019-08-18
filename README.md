@@ -17,7 +17,6 @@ __Questions to Answer:__
   * What foods have a given compound?
   * What goods have the most of a given nutrient (i.e. calculate a rank given an input: https://stackoverflow.com/questions/29620450/how-to-calculate-a-rank-in-neo4j)?
 
-Possibly interesting dataset to explore alongside this one: https://data.nal.usda.gov/dataset/composition-foods-raw-processed-prepared-usda-national-nutrient-database-standard-reference-release-27
 
 Backup plans:
 
