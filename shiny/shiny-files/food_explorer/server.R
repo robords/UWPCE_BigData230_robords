@@ -11,7 +11,7 @@ library(shiny)
 library(neo4r)
 library(magrittr)
 con <- neo4j_api$new(
-  url = "http://172.19.0.3:7474/",
+  url = "http://172.28.1.3:7474/",
   user = "neo4j",
   password = "test"
 )
