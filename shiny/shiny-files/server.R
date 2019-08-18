@@ -1,23 +1,43 @@
-# Define server logic required to draw a histogram ----
-server <- function(input, output) {
+#
+# This is the server logic of a Shiny web application. You can run the 
+# application by clicking 'Run App' above.
+#
+# Find out more about building applications with Shiny here:
+# 
+#    http://shiny.rstudio.com/
+#
 
-  # Histogram of the Old Faithful Geyser Data ----
-  # with requested number of bins
-  # This expression that generates a histogram is wrapped in a call
-  # to renderPlot to indicate that:
-  #
-  # 1. It is "reactive" and therefore should be automatically
-  #    re-executed when inputs (input$bins) change
-  # 2. Its output type is a plot
-  output$distPlot <- renderPlot({
+library(shiny)
+library(neo4r)
+library(magrittr)
+con <- neo4j_api$new(
+  url = "http://172.19.0.3:7474/",
+  user = "neo4j",
+  password = "test"
+)
 
-    x    <- faithful$waiting
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-    hist(x, breaks = bins, col = "#75AADB", border = "white",
-         xlab = "Waiting time to next eruption (in mins)",
-         main = "Histogram of waiting times")
-
+# Define server logic required to draw a histogram
+shinyServer(function(input, output) {
+   
+  output$con_text <- renderText({
+    print(paste(con$ping()))
     })
-
-}
+  output$query_test <- renderPrint({
+    a <- 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;' %>%
+      call_neo4j(con)
+    
+    print(a)
+  })
+  
+  output$distPlot <- renderPlot({
+    
+    # generate bins based on input$bins from ui.R
+    x    <- faithful[, 2] 
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    
+    # draw the histogram with the specified number of bins
+    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    
+  })
+  
+})
