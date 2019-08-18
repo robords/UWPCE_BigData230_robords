@@ -31,8 +31,14 @@ shinyServer(function(input, output, session) {
     print(paste(unlist(query_names)))
   })
   updateSelectizeInput(session, 'choose_names', choices = paste(unlist(query_names)), server = TRUE)
+  query_return_nodes = paste('MATCH (n:Food) WHERE n.name IN ["Pineapple", "Dill"] RETURN n')
+  output$Foods_Selected <- DT::renderDataTable({
+    a <-query_return_nodes %>%
+      call_neo4j(con)
+    as.data.frame(a)
+  })
   
-  query_table = 'MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;'
+  query_table = paste('MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;')
   output$Foods <- DT::renderDataTable({
     a <-query_table %>%
       call_neo4j(con)

@@ -27,6 +27,7 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
        textOutput("con_text"),
+       DT::dataTableOutput("Foods_Selected"),
        DT::dataTableOutput("Foods")
     )
   )
