@@ -35,13 +35,24 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE, options = list(placeholder = 'Select Food(s)'))
   })
 
-  output$query_test <- renderText({
-    print(paste(list(input$choose_names)))
+  output$query_test <- renderPrint({
+    fPaste <- function(vec) sub(',\\s+([^,]+)$', ', \\1', toString(vec))
+    a <- paste0('"', input$choose_names, '"')
+    inputs <- fPaste(a)
+#    inputs <- paste0('"', input$choose_names, '",', collapse = " ")
+    query_output <- paste('MATCH (n:Food) WHERE n.name IN [',inputs,'] RETURN n',sep="")
+    print(query_output)
   })
   
-  query_return_nodes = paste0('MATCH (n:Food) WHERE n.name IN [','"Pineapple", "Dill"','] RETURN n')
+  query_return_nodes <-reactive({
+    fPaste <- function(vec) sub(',\\s+([^,]+)$', ', \\1', toString(vec))
+    a <- paste0('"', input$choose_names, '"')
+    inputs <- fPaste(a)
+    query_output <- paste('MATCH (n:Food) WHERE n.name IN [',inputs,'] RETURN n', sep="")
+    query_output
+  })
   output$Foods_Selected <- DT::renderDataTable({
-    a <-query_return_nodes %>%
+    a <-query_return_nodes() %>%
       call_neo4j(con)
     as.data.frame(a)
   })
