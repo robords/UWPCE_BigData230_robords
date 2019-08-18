@@ -1,0 +1,9 @@
+{
+    "path" : "/srv/shiny-server/food_explorer",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

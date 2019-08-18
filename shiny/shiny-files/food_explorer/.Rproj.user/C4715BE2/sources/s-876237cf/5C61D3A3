@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1566088445478.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5C61D3A3",
+    "lastKnownWriteTime" : 1566086872,
+    "last_content_update" : 1566086872,
+    "path" : "/srv/shiny-server/food_explorer/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+        "cursorPosition" : "10,14",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
