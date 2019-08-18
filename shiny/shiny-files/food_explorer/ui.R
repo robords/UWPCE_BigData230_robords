@@ -20,8 +20,7 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       textOutput("query_test"),
-      selectizeInput('choose_names', label = NULL, choices = NULL, multiple = TRUE,
-                     options = list(placeholder = 'Select Food(s)'))
+      uiOutput("nameControls")
     ),
     
     # Show a plot of the generated distribution
