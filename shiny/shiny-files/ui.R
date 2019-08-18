@@ -1,30 +1,35 @@
-# Define UI for app that draws a histogram ----
-ui <- fluidPage(
+#
+# This is the user-interface definition of a Shiny web application. You can
+# run the application by clicking 'Run App' above.
+#
+# Find out more about building applications with Shiny here:
+# 
+#    http://shiny.rstudio.com/
+#
 
-  # App title ----
-  titlePanel("Hello Shiny!"),
+library(shiny)
 
-  # Sidebar layout with input and output definitions ----
+# Define UI for application that draws a histogram
+shinyUI(fluidPage(
+  
+  # Application title
+  titlePanel("Old Faithful Geyser Data"),
+  
+  # Sidebar with a slider input for number of bins 
   sidebarLayout(
-
-    # Sidebar panel for inputs ----
     sidebarPanel(
-
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
-
+       sliderInput("bins",
+                   "Number of bins:",
+                   min = 1,
+                   max = 50,
+                   value = 30)
     ),
-
-    # Main panel for displaying outputs ----
+    
+    # Show a plot of the generated distribution
     mainPanel(
-
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
-
+       plotOutput("distPlot"),
+       textOutput("con_text"),
+       verbatimTextOutput("query_test")
     )
   )
-)
+))
