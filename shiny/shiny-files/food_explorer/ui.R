@@ -19,15 +19,16 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-      verbatimTextOutput("query_test"),
+      #verbatimTextOutput("query_test"),
+      "Add a food to being exploring",
       uiOutput("nameControls")
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
        textOutput("con_text"),
-       DT::dataTableOutput("Foods_Selected"),
-       DT::dataTableOutput("Foods")
+       DT::dataTableOutput("Foods_Selected")
+       #,DT::dataTableOutput("Foods")
     )
   )
 ))
