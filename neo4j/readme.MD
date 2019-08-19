@@ -13,16 +13,36 @@ LOAD CSV WITH HEADERS FROM "file:///nutrients.csv" AS row
 CREATE (n:Nutrients)
 SET n = row
 
+LOAD CSV WITH HEADERS FROM "file:///foods.csv" AS row
+CREATE (n:Foods)
+SET n = row
+
 LOAD CSV WITH HEADERS FROM "file:///contents_nutrients.csv" AS row
-CREATE (:Food { name: row.orig_food_common_name, source_id: row.source_id, source_type: row.source_type, standard_content: row.standard_content})
+MATCH (nutrient:Nutrients {id: row.source_id}), (food:Foods {id: row.food_id})
+CREATE (food)-[:Has_Nutrient {standard_content: toInteger(row.standard_content), standard_content_unit:  row.orig_unit, orig_food_common_name: row.orig_food_common_name}]->(nutrient)
 
-MATCH (f:Food),(n:Nutrients)
-WHERE  n.id = f.source_id
-CREATE (f)-[:Has_Nutrient]->(n)
+WITH ["Pineapple", "Dill"] as names
+MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+WHERE f.name in names AND h.standard_content > 0 AND f.name = h.orig_food_common_name
+RETURN DISTINCT f.name,  n.name, avg(h.standard_content), h.standard_content_unit, h.orig_food_common_name
+ORDER BY avg(h.standard_content) DESC
 
-MATCH (f:Food),(n:Nutrients)
-WHERE  n.id = f.source_id
-CREATE (f)-[:Has_Nutrient {standard_content: f.standard_content + 'ppm'}]->(n)
+
+
+LOAD CSV WITH HEADERS FROM "file:///compounds.csv" AS row
+CREATE (n:Compounds)
+SET n = row
+
+LOAD CSV WITH HEADERS FROM "file:///foods.csv" AS row
+CREATE (n:Foods)
+SET n = row
+
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///contents_compounds.csv" AS row
+MATCH (compound:Compounds {id: row.source_id}), (food:Foods {id: row.food_id})
+CREATE (food)-[:IS_MADE_OF {standard_content: toInteger(row.standard_content), standard_content_unit:  row.orig_unit, orig_food_common_name: row.orig_food_common_name}]->(compound)
+
+
 
 MATCH (n)
 DETACH DELETE n
