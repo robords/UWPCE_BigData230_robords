@@ -8,27 +8,31 @@
 #
 
 library(shiny)
+library(shinydashboard)
 library(DT)
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+shinyUI(dashboardPage(
   
   # Application title
-  titlePanel("Shiny Food DB"),
+  dashboardHeader(title = "Shiny Food DB"),
   
   # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
+  dashboardSidebar(
       #verbatimTextOutput("query_test"),
-      "Add a food to being exploring",
+      sidebarMenu(
+        menuItem("Explore Compounds", tabName = "compounds", icon = icon("dashboard")),
+        menuItem("Explore Nutrients", tabName = "nutrients", icon = icon("th"))
+      ),
+      "Add a food to begin exploring",
       uiOutput("nameControls")
     ),
     
     # Show a plot of the generated distribution
-    mainPanel(
+  dashboardBody(
        textOutput("con_text"),
        DT::dataTableOutput("Foods_Selected")
        #,DT::dataTableOutput("Foods")
     )
-  )
+  
 ))
