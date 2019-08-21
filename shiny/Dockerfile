@@ -16,7 +16,7 @@ WORKDIR /home/root
 RUN yum install -y R
 
 RUN R -e "install.packages(c('shiny', 'shinydashboard', 'rmarkdown', 'devtools', 'dplyr', 'plotly', 'DT', 'neo4r', 'sparklyr'), repos='http://cran.r-project.org', INSTALL_opts='--no-html')"
-
+RUN R -e "library(sparklyr);spark_install(version = '2.2.0');livy_install()"
 #-----------------------
 
 # Add RStudio binaries to PATH
