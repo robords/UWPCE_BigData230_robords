@@ -5,6 +5,7 @@ services:
     ports:
       - "8787:8787"
       - "3838:3838"
+      #- "0.0.0.0:8001:8001" #Makes webpage accessible from anywhere
     volumes:
       - ./shiny/shiny-files:/srv/shiny-server
     networks:
