@@ -11,7 +11,7 @@ shinyUI(dashboardPage(
   dashboardHeader(title = "Shiny Food DB"),
   
   dashboardSidebar(
-      #verbatimTextOutput("query_test"),
+      verbatimTextOutput("query_test"),
       sidebarMenu(
         menuItem("Explore Compounds", tabName = "compounds", icon = icon("dashboard")),
         menuItem("Explore Nutrients", tabName = "nutrients", icon = icon("th"))
@@ -24,7 +24,10 @@ shinyUI(dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "nutrients",
-              uiOutput("nutrientControls"),
+              uiOutput("NutrientYNControl"),
+              conditionalPanel(
+                condition = "input.filterNutrient == 'YesNutrient'",
+              uiOutput("nutrientControls")),
               DT::dataTableOutput("Foods_Selected")
        ),
       tabItem(tabName = "compounds",
