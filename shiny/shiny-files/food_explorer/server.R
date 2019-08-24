@@ -3,6 +3,7 @@ library(neo4r)
 library(magrittr)
 library(DT)
 library(plotly)
+library(dplyr)
 
 con <- neo4j_api$new(
   url = "http://172.28.1.3:7474/",
@@ -19,12 +20,28 @@ shinyServer(function(input, output, session) {
   
   query_names <- 'MATCH (n:Foods) RETURN DISTINCT n.name LIMIT 50' %>%
     call_neo4j(con)
+  
+  query_compounds <- 'MATCH (n:Compounds) RETURN DISTINCT n.name LIMIT 50' %>%
+    call_neo4j(con)
+  
+  query_nutrients <- 'MATCH (n:Nutrients) RETURN DISTINCT n.name LIMIT 50' %>%
+    call_neo4j(con)
   #output$query_test <- renderText({
   #  print(paste(unlist(query_names)))
   #})
   output$nameControls <- renderUI({
     selectizeInput("choose_names", label = "Choose Food(s)", choices = paste(unlist(query_names)), 
                 multiple = TRUE, options = list(placeholder = 'Select Food(s)'))
+  })
+  
+  output$compoundControls <- renderUI({
+    selectizeInput("choose_compounds", label = "Choose Compounds(s)", choices = paste(unlist(query_compounds)), 
+                   multiple = TRUE, options = list(placeholder = 'Select Compound(s)'))
+  })
+  
+  output$nutrientControls <- renderUI({
+    selectizeInput("choose_nutrients", label = "Choose Nutrients(s)", choices = paste(unlist(query_nutrients)), 
+                   multiple = TRUE, options = list(placeholder = 'Select Nutrient(s)'))
   })
 
   output$query_test <- renderPrint({
@@ -36,6 +53,7 @@ shinyServer(function(input, output, session) {
     RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content), h.standard_content_unit, f.name
     ORDER BY avg(h.standard_content) DESC', sep="")
     print(query_output)
+    #query_output <- paste('MATCH (n:Foods) WHERE n.name IN [',inputs,'] RETURN n', sep="")
   })
   
   query_return_nodes <-reactive({
@@ -46,20 +64,21 @@ shinyServer(function(input, output, session) {
     WHERE f.name in names AND h.standard_content > 0
     RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content), h.standard_content_unit, f.name
     ORDER BY avg(h.standard_content) DESC', sep="")
-    #query_output <- paste('MATCH (n:Foods) WHERE n.name IN [',inputs,'] RETURN n', sep="")
     query_output
   })
   output$Foods_Selected <- DT::renderDataTable({
     a <-query_return_nodes() %>%
       call_neo4j(con)
-    as.data.frame(a)
+    return(as.data.frame(as_tibble(a)))
   })
   
   query_table = paste0('MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;')
   output$Foods <- DT::renderDataTable({
     a <-query_table %>%
       call_neo4j(con)
-    as.data.frame(a)
+    #(function(x)data.frame(Type=names(x), Value=x))(a)
+    return(as.data.frame(a))
+    #return(a)
   })
   
 })

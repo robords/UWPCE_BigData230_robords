@@ -22,8 +22,15 @@ shinyUI(dashboardPage(
     
     # Show a plot of the generated distribution
   dashboardBody(
-       textOutput("con_text"),
-       DT::dataTableOutput("Foods_Selected")
+    tabItems(
+      tabItem(tabName = "nutrients",
+              uiOutput("nutrientControls"),
+              DT::dataTableOutput("Foods_Selected")
+       ),
+      tabItem(tabName = "compounds",
+              uiOutput("compoundControls")
+      )
+    )
        #,DT::dataTableOutput("Foods")
     )
   
