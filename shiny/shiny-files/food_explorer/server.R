@@ -1,16 +1,8 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(neo4r)
 library(magrittr)
 library(DT)
+library(plotly)
 
 con <- neo4j_api$new(
   url = "http://172.28.1.3:7474/",
