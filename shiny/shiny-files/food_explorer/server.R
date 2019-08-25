@@ -21,19 +21,19 @@ shinyServer(function(input, output, session) {
   query_names <- 'MATCH (n:Foods) RETURN DISTINCT n.name LIMIT 200' %>%
     call_neo4j(con)
   
-  query_compounds <- 'MATCH (n:Compounds) RETURN DISTINCT n.name LIMIT 100' %>%
-    call_neo4j(con)
-  
-  query_nutrients <- 'MATCH (n:Nutrients) RETURN DISTINCT n.name LIMIT 100' %>%
-    call_neo4j(con)
-
   output$nameControls <- renderUI({
     selectizeInput("choose_names", label = "Choose Food(s)", choices = paste(unlist(query_names)), 
                 multiple = TRUE, options = list(placeholder = 'Select Food(s)'))
   })
   
   output$compoundControls <- renderUI({
-    selectizeInput("choose_compounds", label = "Choose Compounds(s)", choices = paste(unlist(query_compounds)), 
+    inputs <- toString(paste0('"', input$choose_names, '"'))
+    a <- paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT n.name', sep="")
+    compoundList <- (a %>% call_neo4j(con))$n.name$value
+    selectizeInput("choose_compounds", label = "Choose Compounds(s)", choices = paste(unlist(compoundList)), 
                    multiple = TRUE, options = list(placeholder = 'Select Compound(s)'))
   })
 
@@ -44,12 +44,18 @@ shinyServer(function(input, output, session) {
   })
   
   output$CompoundAVGMatchWithOrig <- renderUI({
-    checkboxInput("CompoundAVGMatchWithOrig", "Avg by name of Orig Food"
+    checkboxInput("CompoundAVGMatchWithOrig", "Avg by name of Orig Food", value = TRUE
     )
   })
     
   output$nutrientControls <- renderUI({
-    selectizeInput("choose_nutrients", label = "Choose Nutrients(s)", choices = paste(unlist(query_nutrients)), 
+    inputs <- toString(paste0('"', input$choose_names, '"'))
+    a <- paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT n.name', sep="")
+    nutrientList <- (a %>% call_neo4j(con))$n.name$value
+    selectizeInput("choose_nutrients", label = "Choose Nutrients(s)", choices = paste(unlist(nutrientList)), 
                    multiple = TRUE, options = list(placeholder = 'Select Nutrient(s)'))
   })
 
@@ -60,16 +66,18 @@ shinyServer(function(input, output, session) {
   })
   
   output$NutrientAVGMatchWithOrig <- renderUI({
-    checkboxInput("NutrientAVGMatchWithOrig", "Avg by name of Orig Food"
+    checkboxInput("NutrientAVGMatchWithOrig", "Avg by name of Orig Food", value = TRUE
     )
   })
   
   output$query_test <- renderPrint({
-    a <- as.data.frame(query_return_nodes())
-    x <- a$h.orig_food_common_name$value
-    y <- a$avgContent
-    data <- as.data.frame(x, y)
-    return(x)
+    inputs <- toString(paste0('"', input$choose_names, '"'))
+    a <- paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT n.name', sep="")
+    b <- (a %>% call_neo4j(con))$n.name$value
+    return(b)
   })
   
   query_return_nodes <-reactive({
