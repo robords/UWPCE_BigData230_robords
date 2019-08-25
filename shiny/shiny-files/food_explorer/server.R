@@ -85,18 +85,34 @@ shinyServer(function(input, output, session) {
     inputs <- toString(paste0('"', input$choose_names, '"'))
     inputsnutrients <- toString(paste0('"',input$choose_nutrients, '"'))
     query_output <- if (input$filterNutrient == "NoNutrient") {
-      paste('WITH [',inputs,'] as names
-      MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
-      WHERE f.name in names AND h.standard_content > 0
-      RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
-      ORDER BY avg(h.standard_content) DESC', sep="")
+      if (input$NutrientAVGMatchWithOrig == FALSE) {
+        paste('WITH [',inputs,'] as names
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        WHERE f.name in names AND h.standard_content > 0
+        RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+        ORDER BY avg(h.standard_content) DESC', sep="")
+      } else {
+        paste('WITH [',inputs,'] as names
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        WHERE f.name in names AND h.standard_content > 0
+        RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+        ORDER BY avg(h.standard_content) DESC', sep="")
+      }
     }
     else {
-      paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients
-      MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
-      WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
-      RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
-      ORDER BY avg(h.standard_content) DESC', sep="")
+      if (input$NutrientAVGMatchWithOrig == FALSE) {
+        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
+        RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+        ORDER BY avg(h.standard_content) DESC', sep="")
+      } else {
+        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
+        RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+        ORDER BY avg(h.standard_content) DESC', sep="")
+      }
     }
     a <-query_output %>%
       call_neo4j(con)
@@ -164,7 +180,11 @@ shinyServer(function(input, output, session) {
   
   output$nutrientPlot <- renderPlotly({
     a <- head(as.data.frame(query_return_nodes()),10)
-    x <- a$h.orig_food_common_name$value
+    x <- if (input$NutrientAVGMatchWithOrig == FALSE) {
+      a$h.orig_food_common_name$value
+    } else {
+      a$f.name$value
+    }
     y <- a$avgContent$value
     #text <- a$h.standard_content_unit$value
     data <- as.data.frame(x, y)
