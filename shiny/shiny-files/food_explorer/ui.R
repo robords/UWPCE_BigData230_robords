@@ -29,6 +29,7 @@ shinyUI(dashboardPage(
                 condition = "input.filterNutrient == 'YesNutrient'",
               uiOutput("nutrientControls")),
               uiOutput("NutrientAVGMatchWithOrig"),
+              uiOutput("nutrientUnitControls"),
               DT::dataTableOutput("Foods_Selected")
               ,plotlyOutput("nutrientPlot")
        ),
@@ -38,6 +39,7 @@ shinyUI(dashboardPage(
                 condition = "input.filterCompound == 'YesCompound'",
                 uiOutput("compoundControls")),
               uiOutput("CompoundAVGMatchWithOrig"),
+              uiOutput("compoundUnitControls"),
               DT::dataTableOutput("Compound_Foods_Selected")
               ,plotlyOutput("compoundPlot")
       )

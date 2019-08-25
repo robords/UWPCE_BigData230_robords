@@ -37,6 +37,17 @@ shinyServer(function(input, output, session) {
                    multiple = TRUE, options = list(placeholder = 'Select Compound(s)'))
   })
 
+  output$compoundUnitControls <- renderUI({
+    inputs <- toString(paste0('"', input$choose_names, '"'))
+    a <- paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT h.standard_content_unit', sep="")
+    unitList <- (a %>% call_neo4j(con))$h.standard_content_unit$value
+    selectizeInput("choose_compound_units", label = "Choose Unit(s)", choices = paste(unlist(unitList)), 
+                   multiple = TRUE, selected = paste(unlist(unitList))[1], options = list(placeholder = 'Select Units(s)'))
+  })
+  
   output$CompoundYNControl <- renderUI({
     selectInput("filterCompound", "Filter for Compound",
                 c(No = "NoCompound", Yes = "YesCompound")
@@ -59,6 +70,17 @@ shinyServer(function(input, output, session) {
                    multiple = TRUE, options = list(placeholder = 'Select Nutrient(s)'))
   })
 
+  output$nutrientUnitControls <- renderUI({
+    inputs <- toString(paste0('"', input$choose_names, '"'))
+    a <- paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT h.standard_content_unit', sep="")
+    unitList <- (a %>% call_neo4j(con))$h.standard_content_unit$value
+    selectizeInput("choose_nutrient_units", label = "Choose Unit(s)", choices = paste(unlist(unitList)), 
+                   multiple = TRUE, selected = paste(unlist(unitList))[1], options = list(placeholder = 'Select Units(s)'))
+  })
+  
   output$NutrientYNControl <- renderUI({
     selectInput("filterNutrient", "Filter for Nutrient",
                 c(No = "NoNutrient", Yes = "YesNutrient")
@@ -84,32 +106,33 @@ shinyServer(function(input, output, session) {
     #add quotes around the vector and convert it to a string
     inputs <- toString(paste0('"', input$choose_names, '"'))
     inputsnutrients <- toString(paste0('"',input$choose_nutrients, '"'))
+    inputsnutrientunits <- toString(paste0('"',input$choose_nutrient_units, '"'))
     query_output <- if (input$filterNutrient == "NoNutrient") {
       if (input$NutrientAVGMatchWithOrig == FALSE) {
-        paste('WITH [',inputs,'] as names
+        paste('WITH [',inputs,'] as names, [',inputsnutrientunits,'] as units
         MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
-        WHERE f.name in names AND h.standard_content > 0
+        WHERE f.name in names AND h.standard_content > 0 AND h.standard_content_unit in units
         RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
         ORDER BY avg(h.standard_content) DESC', sep="")
       } else {
-        paste('WITH [',inputs,'] as names
+        paste('WITH [',inputs,'] as names, [',inputsnutrientunits,'] as units
         MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
-        WHERE f.name in names AND h.standard_content > 0
+        WHERE f.name in names AND h.standard_content > 0 AND h.standard_content_unit in units
         RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
         ORDER BY avg(h.standard_content) DESC', sep="")
       }
     }
     else {
       if (input$NutrientAVGMatchWithOrig == FALSE) {
-        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients
-        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients, [',inputsnutrientunits,'] as units
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients) AND h.standard_content_unit in units
         WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
         RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
         ORDER BY avg(h.standard_content) DESC', sep="")
       } else {
-        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients
+        paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients, [',inputsnutrientunits,'] as units
         MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
-        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
+        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients AND h.standard_content_unit in units
         RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
         ORDER BY avg(h.standard_content) DESC', sep="")
       }
@@ -132,33 +155,34 @@ shinyServer(function(input, output, session) {
     #add quotes around the vector and convert it to a string
     inputs <- toString(paste0('"', input$choose_names, '"'))
     inputscompounds <- toString(paste0('"',input$choose_compounds, '"'))
+    inputscompoundunits <- toString(paste0('"',input$choose_compound_units, '"'))
     query_output <- if (input$filterCompound == "NoCompound") {
       if (input$CompoundAVGMatchWithOrig == FALSE) {
-      paste('WITH [',inputs,'] as names
+      paste('WITH [',inputs,'] as names, [',inputscompoundunits,'] as units
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
-      WHERE f.name in names AND h.standard_content > 0
+      WHERE f.name in names AND h.standard_content > 0 AND h.standard_content_unit in units
       RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
         }
       else {
-        paste('WITH [',inputs,'] as names
+        paste('WITH [',inputs,'] as names, [',inputscompoundunits,'] as units
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
-      WHERE f.name in names AND h.standard_content > 0
+      WHERE f.name in names AND h.standard_content > 0 AND h.standard_content_unit in units
       RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
       }
     }
     else {
       if (input$CompoundAVGMatchWithOrig == FALSE) {
-      paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds
+      paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds, [',inputscompoundunits,'] as units
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
-      WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds
+      WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds AND h.standard_content_unit in units
       RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
       } else {
-        paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds
+        paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds, [',inputscompoundunits,'] as units
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
-      WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds
+      WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds AND h.standard_content_unit in units
       RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
       }
