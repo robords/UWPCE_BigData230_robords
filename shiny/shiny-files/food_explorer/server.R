@@ -42,6 +42,11 @@ shinyServer(function(input, output, session) {
                 c(No = "NoCompound", Yes = "YesCompound")
     )
   })
+  
+  output$CompoundAVGMatchWithOrig <- renderUI({
+    checkboxInput("CompoundAVGMatchWithOrig", "Avg by name of Orig Food"
+    )
+  })
     
   output$nutrientControls <- renderUI({
     selectizeInput("choose_nutrients", label = "Choose Nutrients(s)", choices = paste(unlist(query_nutrients)), 
@@ -53,6 +58,12 @@ shinyServer(function(input, output, session) {
                 c(No = "NoNutrient", Yes = "YesNutrient")
     )
   })
+  
+  output$NutrientAVGMatchWithOrig <- renderUI({
+    checkboxInput("NutrientAVGMatchWithOrig", "Avg by name of Orig Food"
+    )
+  })
+  
   output$query_test <- renderPrint({
     a <- as.data.frame(query_return_nodes())
     x <- a$h.orig_food_common_name$value
@@ -98,18 +109,35 @@ shinyServer(function(input, output, session) {
     inputs <- toString(paste0('"', input$choose_names, '"'))
     inputscompounds <- toString(paste0('"',input$choose_compounds, '"'))
     query_output <- if (input$filterCompound == "NoCompound") {
+      if (input$CompoundAVGMatchWithOrig == FALSE) {
       paste('WITH [',inputs,'] as names
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
       WHERE f.name in names AND h.standard_content > 0
       RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
+        }
+      else {
+        paste('WITH [',inputs,'] as names
+      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
+      WHERE f.name in names AND h.standard_content > 0
+      RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+      ORDER BY avg(h.standard_content) DESC', sep="")
+      }
     }
     else {
+      if (input$CompoundAVGMatchWithOrig == FALSE) {
       paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds
       MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
       WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds
       RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
       ORDER BY avg(h.standard_content) DESC', sep="")
+      } else {
+        paste('WITH [',inputs,'] as names, [',inputscompounds,'] as compounds
+      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
+      WHERE f.name in names AND h.standard_content > 0  AND n.name in compounds
+      RETURN DISTINCT n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
+      ORDER BY avg(h.standard_content) DESC', sep="")
+      }
     }
     a <-query_output %>%
       call_neo4j(con)
@@ -143,7 +171,11 @@ shinyServer(function(input, output, session) {
   
   output$compoundPlot <- renderPlotly({
     a <- head(as.data.frame(query_return_compounds()),10)
-    x <- a$h.orig_food_common_name$value
+    x <- if (input$CompoundAVGMatchWithOrig == FALSE) {
+      a$h.orig_food_common_name$value
+    } else {
+      a$f.name$value
+    }
     y <- a$avgContent$value
     #text <- a$h.standard_content_unit$value
     data <- as.data.frame(x, y)
