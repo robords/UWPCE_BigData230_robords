@@ -93,13 +93,16 @@ shinyServer(function(input, output, session) {
   })
   
   output$query_test <- renderPrint({
-    inputs <- toString(paste0('"', input$choose_names, '"'))
-    a <- paste('WITH [',inputs,'] as names
-      MATCH (f:Foods)-[h:IS_MADE_OF]->(n:Compounds)
-      WHERE f.name in names AND h.standard_content > 0
-      RETURN DISTINCT n.name', sep="")
-    b <- (a %>% call_neo4j(con))$n.name$value
-    return(b)
+    a <- head(as.data.frame(query_return_compounds()),3)
+    x <- if (input$CompoundAVGMatchWithOrig == FALSE) {
+      a$h.orig_food_common_name$value
+    } else {
+      a$f.name$value
+    }
+    y <- a$avgContent$value
+    text <- a$n.name$value
+    data <- as.data.frame(x, y)
+    return(text)
   })
   
   query_return_nodes <-reactive({
@@ -125,8 +128,8 @@ shinyServer(function(input, output, session) {
     else {
       if (input$NutrientAVGMatchWithOrig == FALSE) {
         paste('WITH [',inputs,'] as names, [',inputsnutrients,'] as nutrients, [',inputsnutrientunits,'] as units
-        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients) AND h.standard_content_unit in units
-        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients
+        MATCH (f:Foods)-[h:Has_Nutrient]->(n:Nutrients)
+        WHERE f.name in names AND h.standard_content > 0  AND n.name in nutrients AND h.standard_content_unit in units
         RETURN DISTINCT h.orig_food_common_name,  n.name, avg(h.standard_content) as avgContent, h.standard_content_unit, f.name
         ORDER BY avg(h.standard_content) DESC', sep="")
       } else {
@@ -210,15 +213,16 @@ shinyServer(function(input, output, session) {
       a$f.name$value
     }
     y <- a$avgContent$value
-    #text <- a$h.standard_content_unit$value
+    text <- a$n.name$value
     data <- as.data.frame(x, y)
     plot_ly(data, x = ~x, y = ~y, type = 'bar',
-            marker = list(color = 'rgb(158,202,225)',
-                          line = list(color = 'rgb(8,48,107)',
-                                      width = 1.5))) %>%
+            text = paste(y,text), textposition = 'auto',
+            color = ~text
+    ) %>%
       layout(title = "Food Nutrients",
              xaxis = list(title = ""),
-             yaxis = list(title = ""))
+             yaxis = list(title = ""),
+             barmode = 'stack')
   })
   
   output$compoundPlot <- renderPlotly({
@@ -229,15 +233,16 @@ shinyServer(function(input, output, session) {
       a$f.name$value
     }
     y <- a$avgContent$value
-    #text <- a$h.standard_content_unit$value
+    text <- a$n.name$value
     data <- as.data.frame(x, y)
     plot_ly(data, x = ~x, y = ~y, type = 'bar',
-            marker = list(color = 'rgb(158,202,225)',
-                          line = list(color = 'rgb(8,48,107)',
-                                      width = 1.5))) %>%
+            text = paste(y,text), textposition = 'auto',
+            color = ~text
+            ) %>%
       layout(title = "Food Compounds",
              xaxis = list(title = ""),
-             yaxis = list(title = ""))
+             yaxis = list(title = ""),
+             barmode = 'stack')
   })
   
   query_table = paste0('MATCH p=()-[r:Has_Nutrient]->() RETURN p LIMIT 25;')
