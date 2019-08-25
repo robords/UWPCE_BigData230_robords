@@ -19,18 +19,6 @@ __Questions to Answer:__
   * What foods have a given compound?
   * What goods have the most of a given nutrient (i.e. calculate a rank given an input: https://stackoverflow.com/questions/29620450/how-to-calculate-a-rank-in-neo4j)?
 
-
-Backup plans:
-
-__Data Source:__ https://www.measurementlab.net/data/docs/bq/quickstart/ & https://viz.measurementlab.net/data?aggr=day&clientIsps=AS13367x&format=json&locations=
-
-__Tools:__ 
- * Docker (https://www.docker.elastic.co/)
- * Elastic Stack: Kibana and Elasticsearch (https://www.elastic.co/guide/en/kibana/current/docker.html; https://hub.docker.com/_/kibana; https://hub.docker.com/_/elasticsearch)
- * Python
- 
- __Questions to Answer:__
-  * TBD
   
   
   http://rs.io/100-interesting-data-sets-for-statistics/
